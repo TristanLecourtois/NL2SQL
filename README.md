@@ -4,33 +4,65 @@ This project presents **sqlcoder-34b-alpha** performance, a Text-2-SQL model for
 
 This project has been trained on a server with 380GB of RAM and is powered by 2 NVIDIA Tesla V100 GPUs, each with 32GB of memory.
 
+### Dataset used 
+
+This project utilizes the Chinook dataset, a fictional relational database representing a music store. The Chinook dataset is employed to illustrate various aspects of data analysis and visualization within the scope of this project.
+
 ### Examples from sqlcoder-34b-alpha
 
 #### Prompt:
 
 ```
-"Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+TEMPLATE = """ 
+### Instructions:
+Your task is to convert a question into a SQL query, given a MySQL database schema.
+Adhere to these rules:
+- **Deliberately go through the question and database schema word by word** to appropriately answer the question
+- **Use Table Aliases** to prevent ambiguity. For example, `SELECT table1.col1, table2.col1 FROM table1 JOIN table2 ON table1.id = table2.id`.
+- When creating a ratio, always cast the numerator as float
 
-### Instruction:\nFor model volvo, how many cylinders does the car with the least accelerate have?
+### Input:
+Generate a SQL query that answers the question `{query}`.
+This query will run on a database whose schema is represented in this string:
+{sql_architecture}
+### This is some example of output you can query : {few_shot_examples}
 
-### Input:\nCREATE TABLE CARS_DATA (cylinders VARCHAR, Id VARCHAR, accelerate VARCHAR); CREATE TABLE CAR_NAMES (MakeId VARCHAR, Model VARCHAR)
-
-### Response:"
+### Response:
+Based on your instructions, here is the SQL query I have generated to answer the question `{query}`:
+```sql
+"""
 ```
-#### Output:
+
+
+#### Input_1 :
+
+```python
+query = "Provide a query that shows the most purchased track of 2013."
+```
+
+#### Output_1:
 
 ```sql
-SELECT T2.cylinders
-FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId = T2.MakeId
-WHERE T1.Model = "volvo"
-ORDER BY T2.accelerate LIMIT 1
+SELECT t.name, CAST(COUNT(il.invoicelineid) AS FLOAT) / COUNT(DISTINCT c.customerid) AS purchase_ratio FROM track AS t JOIN invoiceline AS il ON t.trackid = il.trackid JOIN invoice AS i ON il.invoiceid = i.invoiceid JOIN customer AS c ON i.customerid = c.customerid WHERE YEAR(i.invoicedate) = 2013 GROUP BY t.name ORDER BY purchase_ratio DESC LIMIT 1;
 ```
 
-#### Results : 
+#### Input_2 :
+
+```python
+query="Retrieve names of all genres and the total number of available tracks for each genre."
+```
+
+#### Output_2:
+
+```sql
+SELECT g.name AS genre_name, CAST(COUNT(t.trackid) AS FLOAT) / NULLIF((SELECT COUNT(trackid) FROM track), 0) AS track_ratio FROM genre AS g JOIN track AS t ON g.genreid = t.genreid GROUP BY g.name ORDER BY track_ratio DESC NULLS LAST;
+```
+
+## Different prompt Results : 
 
 ![My Image](figures/ex_accuracy.png)
 
-
+The chart depicts the execution accuracy on the Chinook dataset for 50 queries. Execution accuracy refers to the number of queries whose response is valid compared to the total number of queries.
 
 
 
@@ -38,4 +70,6 @@ ORDER BY T2.accelerate LIMIT 1
 
 
 ![My Image](figures/ex_accuracy_heatmap.png)
+
+These results indicate LLMs are able to quickly learn table relationships from a small number of in-domain demonstrations, however, it is more challenging to obtain table content knowledge from demonstration examples.
 
