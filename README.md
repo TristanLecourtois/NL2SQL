@@ -25,3 +25,17 @@ FROM CAR_NAMES AS T1 JOIN CARS_DATA AS T2 ON T1.MakeId = T2.MakeId
 WHERE T1.Model = "volvo"
 ORDER BY T2.accelerate LIMIT 1
 ```
+
+#### Results : 
+
+![My Image](figures/ex_accuracy.png)
+
+
+
+
+
+
+
+
+![My Image](figures/ex_accuracy_heatmap.png)
+
