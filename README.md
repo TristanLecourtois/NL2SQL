@@ -4,6 +4,13 @@ This project presents **sqlcoder-34b-alpha** performance, a Text-2-SQL model for
 
 This project has been trained on a server with 380GB of RAM and is powered by 2 NVIDIA Tesla V100 GPUs, each with 32GB of memory.
 
+### Text2SQL Challenges :
+* SQL syntax : there are queries which are easy to express in natural language but the SQL translation may be complex.
+* Syntactic ambiguity : A sentence can have mutiple interpretations based on its syntactic structure.
+* Database structure : the user's model of the data may not match the database schema
+* Max Token limit : it's crucial to be mindful of the token limit, as cutting off important parts of a query might lead to loss of context and potentially impact the model's ability to generate accurate SQL queries 
+
+
 ### Dataset used 
 
 This project utilizes the Chinook dataset, a fictional relational database representing a music store. The Chinook dataset is employed to illustrate various aspects of data analysis and visualization within the scope of this project.
