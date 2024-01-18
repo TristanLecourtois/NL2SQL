@@ -65,7 +65,33 @@ query="Retrieve names of all genres and the total number of available tracks for
 SELECT g.name AS genre_name, CAST(COUNT(t.trackid) AS FLOAT) / NULLIF((SELECT COUNT(trackid) FROM track), 0) AS track_ratio FROM genre AS g JOIN track AS t ON g.genreid = t.genreid GROUP BY g.name ORDER BY track_ratio DESC NULLS LAST;
 ```
 
-## Different prompt Results : 
+## Different prompt strategy results : 
+
+There are different prompt constructions for the database schema that have been utilized in previous studies [1] [2] [3]
+* **Table(Columns)** lists each table along with its columns inside parentheses to represent the table schemas
+* **Columns=[]** represents each table along with a list of its columns using an equation-like notation
+* **CreateTable** employed the "CREATE TABLE" statement to display the table schemas and relationships
+
+We also use database content which can improve model performance by exposing models to specific format of values in each column
+
+```sql
+------ Table(Columns) --------
+Highschooler ( ID , name , grade ) ;
+Friend ( student_id , friend_id ) ;
+
+
+------ Columns=[] (Pourreza and Rafiei, 2023) --------
+Table Highschooler , Columns = [ ID , name , grade ];
+Table Friend , Columns = [ student_id , friend_id ];
+
++FK (Pourreza and Rafiei, 2023) Foreign_keys = [ Friend . student_id = Highschooler . ID , Friend . friend_id = Highschooler . ID ];
+
+
+------ CreateTable (Rajkumar et al., 2022) --------
+CREATE TABLE Highschooler ( ID int primary key , name text , grade int ) ;
+CREATE TABLE Friend ( student_id int , friend_id int , primary key ( student_id , friend_id ) , foreign key ( student_id ) references Highschooler ( ID ) , foreign key ( friend_id ) references Highschooler ( ID ) ) ;
+```
+
 
 ![My Image](figures/ex_accuracy.png)
 
@@ -80,3 +106,9 @@ The chart depicts the execution accuracy on the Chinook dataset for 50 queries. 
 
 These results indicate LLMs are able to quickly learn table relationships from a small number of in-domain demonstrations, however, it is more challenging to obtain table content knowledge from demonstration examples.
 
+
+## References 
+
+[1]: Pourreza and Rafiei, 2023 
+[2] : Rajkumar et al., 2022
+[3] : Liu et al., 2023
